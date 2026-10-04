@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from pathlib import Path
 
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION & THEME STYLING
@@ -74,7 +75,8 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 @st.cache_data
 def load_data():
-    df = pd.read_csv('strait_of_hormuz_closure_impacts_cleaned.csv')
+    data_path = Path(__file__).resolve().parent / 'strait_of_hormuz_closure_impacts_cleaned.csv'
+    df = pd.read_csv(data_path)
     
     # Coordinate dictionary for geospatial mapping
     coords = {
@@ -106,7 +108,6 @@ df_full = load_data()
 # 3. SIDEBAR CONTROLS & FILTERS
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.image("https://img.icons8.com/isometric/100/oil-pump.png", width=70)
     st.markdown("### 🎛️ Analysis Controls")
     
     # Region Multi-select
@@ -137,6 +138,11 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("<small>Data: Strait of Hormuz Closure Risk Dataset</small>", unsafe_allow_html=True)
+    st.link_button(
+        "Open project on GitHub",
+        "https://github.com/usmankhan-pro/Strait-of-hormuz-impact-analysis",
+        icon=":material/open_in_new:"
+    )
 
 # Apply Filters
 df_filtered = df_full.copy()
