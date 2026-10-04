@@ -1,6 +1,6 @@
 const DATA_URL = "./strait_of_hormuz_closure_impacts_cleaned.csv";
 const RISK_ORDER = ["Critical", "High", "Severe", "Moderate", "Low"];
-const COLORS = { ink: "#34423b", muted: "#7b8780", grid: "#e7ebe5", rust: "#bd4f34", teal: "#327b75", gold: "#bf8a3d" };
+const COLORS = { ink: "#34423b", muted: "#7b8780", secondary: "#495750", grid: "#e7ebe5", rust: "#bd4f34", teal: "#327b75", gold: "#bf8a3d", mapLow: "#e8e9df", heatMid: "#f3f4ee", land: "#e7ebe4", ocean: "#edf2ef", coast: "#c9d2cb", country: "#d5dcd5", hover: "#202b32" };
 const LOCATIONS = {
   "Saudi Arabia": [23.8859, 45.0792], Iraq: [33.2232, 43.6793], "United Arab Emirates": [23.4241, 53.8478], Kuwait: [29.3117, 47.4818], Qatar: [25.3548, 51.1839], Iran: [32.4279, 53.688], China: [35.8617, 104.1954], India: [20.5937, 78.9629], Japan: [36.2048, 138.2529], "South Korea": [35.9078, 127.7669], Singapore: [1.3521, 103.8198], Thailand: [15.87, 100.9925], Pakistan: [30.3753, 69.3451], Germany: [51.1657, 10.4515], "United States": [37.0902, -95.7129]
 };
@@ -36,6 +36,26 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
+function applyTheme(theme, persist = true) {
+  const dark = theme === "dark";
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  Object.assign(COLORS, dark ? {
+    ink: "#e4ebe5", muted: "#a2aea5", secondary: "#c1cbc3", grid: "#39463e", rust: "#e17a5a", teal: "#70b8a8", gold: "#e3b96f", mapLow: "#46544a", heatMid: "#28342d", land: "#29352e", ocean: "#1a2520", coast: "#526158", country: "#3b4940", hover: "#0d1410"
+  } : {
+    ink: "#34423b", muted: "#7b8780", secondary: "#495750", grid: "#e7ebe5", rust: "#bd4f34", teal: "#327b75", gold: "#bf8a3d", mapLow: "#e8e9df", heatMid: "#f3f4ee", land: "#e7ebe4", ocean: "#edf2ef", coast: "#c9d2cb", country: "#d5dcd5", hover: "#202b32"
+  });
+  byId("themeToggle").setAttribute("aria-label", `Switch to ${dark ? "light" : "dark"} theme`);
+  byId("themeToggle").setAttribute("aria-pressed", String(dark));
+  byId("themeIcon").textContent = dark ? "☀" : "☾";
+  byId("themeLabel").textContent = dark ? "Light theme" : "Dark theme";
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#141a17" : "#f4f5f1";
+  if (persist) {
+    try { localStorage.setItem("hormuz-dashboard-theme", dark ? "dark" : "light"); }
+    catch { }
+  }
+  if (currentRows.length && window.Plotly) renderActiveCharts();
+}
+
 function initializeFilters() {
   const regions = [...new Set(allRows.map((row) => row.Region))].sort();
   for (const region of regions) byId("regionFilter").add(new Option(region, region));
@@ -45,6 +65,7 @@ function initializeFilters() {
   byId("dependencyMin").addEventListener("input", keepRangeValid);
   byId("dependencyMax").addEventListener("input", keepRangeValid);
   byId("resetFilters").addEventListener("click", resetFilters);
+  byId("themeToggle").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
   byId("mobileToggle").addEventListener("click", () => {
     const expanded = byId("mobileToggle").getAttribute("aria-expanded") !== "true";
     byId("mobileToggle").setAttribute("aria-expanded", String(expanded));
@@ -116,12 +137,12 @@ function renderMetrics(rows) {
 function baseLayout(extra = {}) {
   return {
     autosize: true, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
-    font: { family: "DM Sans, Segoe UI, sans-serif", size: 10, color: COLORS.muted },
+    font: { family: "Helvetica Neue, Helvetica, Arial, sans-serif", size: 10, color: COLORS.muted },
     margin: { l: 55, r: 18, t: 17, b: 45 },
     xaxis: { gridcolor: COLORS.grid, zerolinecolor: COLORS.grid, linecolor: COLORS.grid, automargin: true },
     yaxis: { gridcolor: COLORS.grid, zerolinecolor: COLORS.grid, linecolor: COLORS.grid, automargin: true },
     legend: { orientation: "h", y: 1.1, x: 0, font: { size: 9 } },
-    hoverlabel: { bgcolor: "#202b32", font: { color: "#ffffff", size: 10 } },
+    hoverlabel: { bgcolor: COLORS.hover, font: { color: "#ffffff", size: 10 } },
     ...extra
   };
 }
@@ -137,7 +158,7 @@ function renderMap(rows) {
     marker: {
       size: points.map((row) => Math.max(7, Math.sqrt(number(row, "Daily_Volume_Affected_Mbd")) * 12)),
       color: points.map((row) => Math.abs(number(row, "Estimated_GDP_Impact_Pct"))),
-      colorscale: [[0, "#e8e9df"], [1, COLORS.rust]], cmin: 0,
+      colorscale: [[0, COLORS.mapLow], [1, COLORS.rust]], cmin: 0,
       cmax: Math.max(...points.map((row) => Math.abs(number(row, "Estimated_GDP_Impact_Pct")))) || 1,
       colorbar: { title: { text: "GDP impact (%)", side: "right" }, thickness: 10, outlinewidth: 0, tickfont: { size: 8 } },
       opacity: 0.84, line: { width: 1.3, color: "#ffffff" }
@@ -145,7 +166,7 @@ function renderMap(rows) {
     hovertemplate: "<b>%{text}</b><br>%{customdata[0]} · %{customdata[1]}<br>Dependency: %{customdata[2]:.0f}%<br>Volume: %{customdata[3]:.1f} Mbd<br>GDP impact: %{customdata[4]:.1f}%<br>Risk: %{customdata[5]}<br>Alternative route: %{customdata[6]}<extra></extra>"
   }], baseLayout({
     margin: { l: 0, r: 0, t: 5, b: 5 }, showlegend: false,
-    geo: { projection: { type: "natural earth" }, showframe: false, showcoastlines: true, coastlinecolor: "#c9d2cb", showland: true, landcolor: "#e7ebe4", showocean: true, oceancolor: "#edf2ef", showcountries: true, countrycolor: "#d5dcd5", showlakes: true, lakecolor: "#edf2ef", bgcolor: "rgba(0,0,0,0)" }
+    geo: { projection: { type: "natural earth" }, showframe: false, showcoastlines: true, coastlinecolor: COLORS.coast, showland: true, landcolor: COLORS.land, showocean: true, oceancolor: COLORS.ocean, showcountries: true, countrycolor: COLORS.country, showlakes: true, lakecolor: COLORS.ocean, bgcolor: "rgba(0,0,0,0)" }
   }));
 }
 
@@ -200,7 +221,7 @@ function renderRelationships(rows) {
     ["GDP impact", "Estimated_GDP_Impact_Pct"]
   ];
   const matrix = metrics.map(([, a]) => metrics.map(([, b]) => correlation(rows, a, b)));
-  const heat = chart("correlationChart", [{ type: "heatmap", x: metrics.map(([label]) => label), y: metrics.map(([label]) => label), z: matrix, zmin: -1, zmax: 1, colorscale: [[0, "#437d76"], [0.5, "#f3f4ee"], [1, "#bd4f34"]], text: matrix.map((line) => line.map((value) => value.toFixed(2))), texttemplate: "%{text}", hovertemplate: "%{y} × %{x}<br>Correlation: %{z:.2f}<extra></extra>", colorbar: { thickness: 10, outlinewidth: 0, tickfont: { size: 8 } } }], baseLayout({ margin: { l: 95, r: 35, t: 15, b: 65 }, xaxis: { side: "bottom", tickangle: -18 }, yaxis: { autorange: "reversed" } }));
+  const heat = chart("correlationChart", [{ type: "heatmap", x: metrics.map(([label]) => label), y: metrics.map(([label]) => label), z: matrix, zmin: -1, zmax: 1, colorscale: [[0, "#437d76"], [0.5, COLORS.heatMid], [1, COLORS.rust]], text: matrix.map((line) => line.map((value) => value.toFixed(2))), texttemplate: "%{text}", hovertemplate: "%{y} × %{x}<br>Correlation: %{z:.2f}<extra></extra>", colorbar: { thickness: 10, outlinewidth: 0, tickfont: { size: 8 } } }], baseLayout({ margin: { l: 95, r: 35, t: 15, b: 65 }, xaxis: { side: "bottom", tickangle: -18 }, yaxis: { autorange: "reversed" } }));
   return Promise.all([scatter, heat]);
 }
 
@@ -285,6 +306,7 @@ async function start() {
     allRows = parseCsv(await response.text());
     if (!allRows.length) throw new Error("The country dataset is empty.");
     initializeFilters();
+    applyTheme(document.documentElement.dataset.theme || "light", false);
     byId("loadMessage").hidden = true;
     updateDashboard();
   } catch (error) {

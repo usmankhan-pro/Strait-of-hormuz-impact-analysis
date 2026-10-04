@@ -6,9 +6,10 @@
     <meta name="theme-color" content="#f4f5f1" />
     <meta name="description" content="Explore country exposure, energy volumes, and economic risk from a Strait of Hormuz disruption." />
     <title>Chokepoint | Hormuz Exposure Monitor</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <script>
+      try { document.documentElement.dataset.theme = localStorage.getItem("hormuz-dashboard-theme") || "light"; }
+      catch { document.documentElement.dataset.theme = "light"; }
+    </script>
     <link rel="stylesheet" href="./styles.css" />
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
     <script src="./app.js" defer></script>
@@ -63,7 +64,10 @@
       <main id="top" class="main-content">
         <header class="topbar">
           <div class="breadcrumbs"><span>MONITORING</span><span class="crumb-divider">/</span><strong>STRAIT OF HORMUZ</strong></div>
-          <div class="live-tag"><span></span> SCENARIO ANALYSIS</div>
+          <div class="topbar-actions">
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false"><span id="themeIcon" aria-hidden="true">☾</span><span id="themeLabel">Dark theme</span></button>
+            <div class="live-tag"><span></span> SCENARIO ANALYSIS</div>
+          </div>
         </header>
 
         <section class="page-heading">
