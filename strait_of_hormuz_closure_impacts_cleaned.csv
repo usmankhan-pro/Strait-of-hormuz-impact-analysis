@@ -1,0 +1,16 @@
+Country,Region,Role,Hormuz_Transit_Dependency_Pct,Alternative_Route_Availability,Daily_Volume_Affected_Mbd,Economic_Impact_Risk,Primary_Energy_Risk,Estimated_GDP_Impact_Pct,GDP_Impact_Rank,Volume_Risk_Rank,Dependency_Rank
+Saudi Arabia,Middle East,Exporter,60.0,High (East-West Pipeline),5.5,High,Crude Oil,-4.5,5,1,8
+Iraq,Middle East,Exporter,72.0,Low,3.2,Critical,Crude Oil,-12.0,2,3,6
+United Arab Emirates,Middle East,Exporter,51.0,Medium (Fujairah Pipeline),1.8,High,Crude Oil,-3.5,6,6,9
+Kuwait,Middle East,Exporter,100.0,None (No Alternate Route),2.0,Critical,Crude Oil,-15.0,1,4,1
+Qatar,Middle East,Exporter,95.0,None (No Alternate Route),1.5,Critical,LNG,-10.0,3,9,2
+Iran,Middle East,Exporter,40.0,Medium (Jask Port),0.8,Severe,Crude Oil,-6.0,4,10,12
+China,Asia-Pacific,Importer,45.0,Medium (Strategic Reserves/Russia),4.8,Severe,Crude Oil,-1.8,11,2,11
+India,Asia-Pacific,Importer,65.0,Low,1.9,Critical,Crude Oil,-2.5,8,5,7
+Japan,Asia-Pacific,Importer,85.0,None (No Alternate Route),1.6,Critical,LNG & Crude,-2.2,9,8,3
+South Korea,Asia-Pacific,Importer,80.0,None (No Alternate Route),1.7,Critical,Crude Oil,-2.0,10,7,4
+Singapore,Asia-Pacific,Importer,35.0,Low,0.5,High,Bunkering Fuel,-1.5,12,11,13
+Thailand,Asia-Pacific,Importer,50.0,Low,0.4,High,Crude Oil,-1.2,13,12,10
+Pakistan,Asia-Pacific,Importer,75.0,None (No Alternate Route),0.3,Critical,Petroleum Products,-3.0,7,13,5
+Germany,Europe,Importer,15.0,Medium (Atlantic/Africa),0.2,Moderate,Crude & LNG,-0.4,14,14,14
+United States,North America,Importer,5.0,High (Domestic Production),0.1,Low,Market Volatility,-0.1,15,15,15
