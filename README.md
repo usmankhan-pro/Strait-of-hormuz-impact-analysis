@@ -1,25 +1,31 @@
-# Strait of Hormuz Closure Impact Dashboard
+# Strait of Hormuz Impact Monitor
 
-Interactive analysis of country exposure to a potential Strait of Hormuz disruption, with regional filters, risk rankings, a global map, correlation analysis, scenario simulation, and CSV export.
+A browser-based dashboard for exploring country exposure to a potential Strait of Hormuz disruption. Includes interactive filters, a global exposure map, country rankings, correlation analysis, scenario estimates, and filtered CSV export.
 
-[![Deploy to Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=usmankhan-pro/Strait-of-hormuz-impact-analysis&branch=main&mainModule=app.py)
+## Deploy on Vercel
 
-## Deploy online
+1. Push the repository changes to GitHub and wait for Vercel to redeploy the connected project.
+2. In Vercel, set **Root Directory** to `.` (the repository root) and **Framework Preset** to **Other**.
+3. Leave **Build Command** and **Install Command** blank. Set **Output Directory** to `.` if the project settings require one.
+4. Redeploy. Vercel should serve the root `index.html`; the cleaned CSV and frontend assets must remain in the same repository root.
 
-1. Push the repository to GitHub.
-2. Select **Deploy to Streamlit** above and sign in to Streamlit Community Cloud with GitHub.
-3. Confirm `main` as the branch and `app.py` as the entry point, then deploy.
-4. Streamlit Community Cloud will provide a public URL for the dashboard.
+The repository includes `vercel.json` for clean URL behavior. No Python runtime or build step is required for the website. Plotly.js and the display fonts are loaded from public CDNs; all analysis data is bundled in the repository.
 
-The app and cleaned CSV are included in this repository. Dependencies are defined in `requirements.txt` and the dashboard theme is in `.streamlit/config.toml`.
+## Run the website locally
 
-## Run locally
+Serve the repository root with any static file server, for example:
+
+```bash
+python -m http.server 4173
+```
+
+Then open `http://localhost:4173`.
+
+## Run the original Streamlit analysis
+
+The original Python dashboard remains available as `app.py`:
 
 ```bash
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
-
-## Hosting note
-
-This project uses Streamlit's persistent app server and WebSocket session model. Vercel Functions/Pages do not host Streamlit directly; use Streamlit Community Cloud for this app. To host on Vercel, the dashboard would need to be rebuilt as a static or serverless web application.

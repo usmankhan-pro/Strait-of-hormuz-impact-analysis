@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f5f1" />
+    <meta name="description" content="Explore country exposure, energy volumes, and economic risk from a Strait of Hormuz disruption." />
+    <title>Chokepoint | Hormuz Exposure Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#top" aria-label="Chokepoint home">
+          <span class="brand-mark" aria-hidden="true">H</span>
+          <span><strong>CHOKEPOINT</strong><small>GLOBAL ENERGY MONITOR</small></span>
+        </a>
+        <button id="mobileToggle" class="mobile-toggle" type="button" aria-expanded="false">Filters and scenario <span aria-hidden="true">⌄</span></button>
+
+        <div id="filterControls" class="filter-controls">
+        <div class="sidebar-rule"></div>
+        <div class="eyebrow">ANALYSIS CONTROLS</div>
+        <label class="field-label" for="regionFilter">Region</label>
+        <select id="regionFilter"><option value="All">All regions</option></select>
+
+        <label class="field-label" for="roleFilter">Economic role</label>
+        <select id="roleFilter">
+          <option value="All">All roles</option>
+          <option value="Exporter">Exporter</option>
+          <option value="Importer">Importer</option>
+        </select>
+
+        <div class="field-label">Risk tier</div>
+        <div id="riskFilters" class="risk-filters" aria-label="Filter by risk tier"></div>
+
+        <div class="field-label range-heading">Transit dependency <span id="dependencyLabel">0–100%</span></div>
+        <div class="range-pair">
+          <label><span>Min</span><input id="dependencyMin" type="range" min="0" max="100" value="0" /></label>
+          <label><span>Max</span><input id="dependencyMax" type="range" min="0" max="100" value="100" /></label>
+        </div>
+
+        <button id="resetFilters" class="text-button" type="button">Reset all filters</button>
+
+        <div class="sidebar-rule scenario-rule"></div>
+        <div class="eyebrow">CLOSURE SCENARIO</div>
+        <label class="field-label range-heading" for="daysInput">Disruption duration <span><output id="daysValue">28</output> days</span></label>
+        <input id="daysInput" class="scenario-slider" type="range" min="7" max="180" step="7" value="28" />
+        <label class="field-label range-heading" for="priceInput">Oil benchmark <span>$<output id="priceValue">85</output>/bbl</span></label>
+        <input id="priceInput" class="scenario-slider" type="range" min="60" max="160" step="5" value="85" />
+
+        <div class="sidebar-bottom">
+          <a class="source-link" href="https://github.com/usmankhan-pro/Strait-of-hormuz-impact-analysis" target="_blank" rel="noreferrer">View source on GitHub <span aria-hidden="true">↗</span></a>
+          <span class="source-note">Dataset: Strait of Hormuz closure impacts</span>
+        </div>
+        </div>
+      </aside>
+
+      <main id="top" class="main-content">
+        <header class="topbar">
+          <div class="breadcrumbs"><span>MONITORING</span><span class="crumb-divider">/</span><strong>STRAIT OF HORMUZ</strong></div>
+          <div class="live-tag"><span></span> SCENARIO ANALYSIS</div>
+        </header>
+
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow heading-kicker">MARITIME ENERGY EXPOSURE</p>
+            <h1>Strait of Hormuz<br class="mobile-break" /> impact monitor</h1>
+            <p class="intro">A country-level view of energy transit dependency and economic exposure under a chokepoint disruption.</p>
+          </div>
+          <div class="heading-meta"><span>15</span><small>COUNTRIES<br />IN SAMPLE</small></div>
+        </section>
+
+        <section class="kpi-grid" aria-label="Summary indicators">
+          <article class="kpi"><div class="kpi-label">Countries in view</div><div id="kpiCountries" class="kpi-value">—</div><div class="kpi-foot">Selected by current filters</div></article>
+          <article class="kpi"><div class="kpi-label">Daily volume exposed</div><div class="kpi-value"><span id="kpiVolume">—</span><small> Mbd</small></div><div id="kpiVolumeFoot" class="kpi-foot">— of the full sample</div></article>
+          <article class="kpi"><div class="kpi-label">Mean transit dependency</div><div class="kpi-value"><span id="kpiDependency">—</span><small>%</small></div><div id="kpiPeak" class="kpi-foot">Peak —%</div></article>
+          <article class="kpi kpi-alert"><div class="kpi-label">Mean GDP impact</div><div class="kpi-value"><span id="kpiGdp">—</span><small>%</small></div><div id="kpiCritical" class="kpi-foot">— critical-tier countries</div></article>
+        </section>
+
+        <nav class="view-tabs" aria-label="Dashboard views">
+          <button class="view-tab active" type="button" data-view="map">Exposure map</button>
+          <button class="view-tab" type="button" data-view="rankings">Country rankings</button>
+          <button class="view-tab" type="button" data-view="correlation">Relationships</button>
+          <button class="view-tab" type="button" data-view="scenario">Scenario model</button>
+          <button class="view-tab" type="button" data-view="data">Data table</button>
+        </nav>
+
+        <div id="loadMessage" class="message" role="status">Loading country exposure data…</div>
+        <div id="errorMessage" class="message error-message" role="alert" hidden></div>
+
+        <section class="view-panel active" id="view-map" aria-label="Exposure map">
+          <div class="section-head"><div><p class="eyebrow">GEOGRAPHIC DISTRIBUTION</p><h2>Global chokepoint exposure</h2></div><p class="section-note">Marker size: daily volume · Color: GDP impact</p></div>
+          <div class="chart-frame map-frame"><div id="mapChart" class="chart map-chart"></div><div class="map-footnote">Modeled estimates for 15 representative economies · Hover over a marker for country detail</div></div>
+          <div class="below-map"><span><i class="impact-scale"></i> Greater GDP impact</span><span>Bubble size: daily volume affected</span><span class="map-disclaimer">Scenario estimates, not live shipping data</span></div>
+        </section>
+
+        <section class="view-panel" id="view-rankings" aria-label="Country rankings" hidden>
+          <div class="section-head"><div><p class="eyebrow">COMPARATIVE EXPOSURE</p><h2>Country rankings</h2></div><p class="section-note">Rankings respond to the active filters</p></div>
+          <div class="chart-grid"><article class="chart-frame"><h3>Transit dependency</h3><div id="dependencyChart" class="chart"></div></article><article class="chart-frame"><h3>Daily affected volume</h3><div id="volumeChart" class="chart"></div></article></div>
+          <article class="chart-frame secondary-chart"><h3>Estimated GDP impact by role</h3><div id="gdpRoleChart" class="chart"></div></article>
+        </section>
+
+        <section class="view-panel" id="view-correlation" aria-label="Relationships" hidden>
+          <div class="section-head"><div><p class="eyebrow">STATISTICAL VIEW</p><h2>Exposure relationships</h2></div><p class="section-note">Associations describe this sample; they do not imply causation</p></div>
+          <div class="chart-grid relationship-grid"><article class="chart-frame"><h3>Dependency and GDP impact</h3><div id="scatterChart" class="chart"></div></article><article class="chart-frame"><h3>Metric correlation</h3><div id="correlationChart" class="chart"></div></article></div>
+          <p class="analysis-note"><strong>Reading the relationship.</strong> Points represent countries, colored by economic role. The fitted line is a simple least-squares trend for the filtered sample.</p>
+        </section>
+
+        <section class="view-panel" id="view-scenario" aria-label="Scenario model" hidden>
+          <div class="section-head"><div><p class="eyebrow">USER-DEFINED ASSUMPTIONS</p><h2>Closure scenario model</h2></div><p class="section-note">Gross flow value only; not a forecast of realized economic loss</p></div>
+          <div class="scenario-summary"><article><span>Cumulative volume disrupted</span><strong id="scenarioBarrels">—</strong></article><article><span>Gross flow value disrupted</span><strong id="scenarioValue">—</strong></article><article><span>Implied daily gross value</span><strong id="scenarioDaily">—</strong></article></div>
+          <article class="chart-frame secondary-chart"><h3>Estimated gross flow value by country</h3><div id="scenarioChart" class="chart"></div></article>
+          <p class="analysis-note">Calculated as affected million barrels per day × disruption days × oil benchmark. This does not account for rerouting, inventories, price responses, or downstream losses.</p>
+        </section>
+
+        <section class="view-panel" id="view-data" aria-label="Data table" hidden>
+          <div class="section-head"><div><p class="eyebrow">SOURCE DATA</p><h2>Country exposure table</h2></div><button id="downloadCsv" class="download-button" type="button">Download filtered CSV <span aria-hidden="true">↓</span></button></div>
+          <div class="table-wrap"><table><thead><tr><th>Country</th><th>Region</th><th>Role</th><th>Dependency</th><th>Volume (Mbd)</th><th>GDP impact</th><th>Risk tier</th><th>Alternative route</th></tr></thead><tbody id="dataRows"></tbody></table></div>
+          <p id="tableCount" class="table-count"></p>
+        </section>
+
+        <footer class="page-footer"><span>STRAIT OF HORMUZ · EXPOSURE MONITOR</span><span>Scenario dataset · 15 countries</span></footer>
+      </main>
+    </div>
+  </body>
+</html>
